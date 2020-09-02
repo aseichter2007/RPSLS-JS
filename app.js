@@ -8,8 +8,8 @@ class Game{
         this.gestureOptions = ["rock", "paper", "scissors", "lizard", "spock"]//this could probably be built from actul gesture objects to be suer fancy.
     }
 
-    SetupGame(){
-        let players = PromptFor("How many players?")
+    setupGame(){
+        let players = Helper.promptFor("How many players?")
         if (players === "1") {
             this.player1 = new Human(this.gestureOptions);
             this.player2 = new AI(this.gestureOptions);
@@ -18,52 +18,51 @@ class Game{
             this.player1 = new Human(this.gestureOptions);
             this.player2 = new Human(this.gestureOptions);
         } else {
-            this.setupgame()
+            this.setupGame()
         }
-        let topscore = PromptFor("How many points to win?")
-        let parsed = this.TryParseInt(topscore, 0) 
+        let topscore = Helper.promptFor("How many points to win?")
+        let parsed = this.tryParseInt(topscore, 0) 
         if (parsed !== 0) {
             this.maxScore = parsed;
         }
     }
 
-    RunGame(){
+    runGame(){
         do {
-            let p1throw =  this.player1.Throw();
-            let p2throw = this. player2.Throw()
-            let comparator = new Comparator(p1throw, p2throw);
-            let winner = comparator.Compare();
+            let p1throw =  this.player1.throw();
+            let p2throw = this. player2.throw()
+            let winner = Comparator.compare(p1throw, p2throw);
             if (winner[0] === 1) {
                 //console.log(winner[0]);
                 this.player1.score++;
-                console.log(this.player1.name + " won the round");
-                PrintOut(this.player1.name + " won the round");
+                //console.log(this.player1.name + " won the round. " + winner[1]);
+                Helper.printOut(this.player1.name + " won the round. " + winner[1]);
             } else if (winner[0]===2) {
                 //console.log(winner[0]);
                 this.player2.score++;
-                console.log(this.player2.name + " won the round");
-                PrintOut(this.player2.name + " won the round");
+                //console.log(this.player2.name + " won the round. " + winner[1]);
+                Helper.printOut(this.player2.name + " won the round. " + winner[1]);
 
             } else {
-                console.log("TIE!");
-                PrintOut("Tie")
+                //console.log("TIE!");
+                Helper.printOut("TIE!")
             }             
         } while (this.player1.score < this.maxScore && this.player2.score < this.maxScore);
         this.DeclareWinner();
     }
     DeclareWinner(){
         if (this.player1.score > this.player2.score) {
-            console.log(this.player1.name + " wins the competition!");
-            PrintOut(this.player1.name + " wins the competition!");
+            //console.log(this.player1.name + " wins the competition!");
+            Helper.printOut(this.player1.name + " wins the competition!");
         } else if (this.player2.score > this.player1.score) {
-            console.log(this.player2.name + " wins the competition!");
-            PrintOut(this.player2.name + " wins the competition!");
+            //console.log(this.player2.name + " wins the competition!");
+            Helper.printOut(this.player2.name + " wins the competition!");
         } else {
-            console.log("its... a tie somehow.  contact the developer of this application.")
+            console.error("its... a tie somehow.  contact the developer of this application.")
         } 
     }
 
-    TryParseInt(str,defaultValue) {//I stole this code block from https://pietschsoft.com/post/2008/01/14/javascript-inttryparse-equivalent
+    tryParseInt(str,defaultValue) {//I stole this code block from https://pietschsoft.com/post/2008/01/14/javascript-intTryParse-equivalent
         var retValue = defaultValue;
         if(str !== null) {
             if(str.length > 0) {
@@ -83,23 +82,23 @@ class Player{
         this.score = 0;
         this.gestureOptions = gestureOptions;
     }
-    Throw(){
-        console.log("Error: this method should be overridden")
+    throw(){
+        console.error("Error: this method should be overridden")
     }
 
 }
 
 class Human extends Player{
     constructor(gestureOptions){
-        super(PromptFor("enter player name"), gestureOptions)
+        super(Helper.promptFor("enter player name"), gestureOptions)
     }
-    Throw(){
+    throw(){
         let message = "";
         for (let index = 1; index < this.gestureOptions.length+1; index++) {
             const element = this.gestureOptions[index-1];
             message += index+". "+element + "\n"
         }        
-        let choice = PromptFor(this.name + " choose a gesture\n" + message)
+        let choice = Helper.promptFor(this.name + " choose a gesture\n" + message)
         
         switch (choice) {//ideally a dynamic switch could handle new gesture options but I dont know how to dynamic switch.
             case "1":
@@ -113,7 +112,7 @@ class Human extends Player{
             case "5":
                 return new Spock();        
             default:
-                return this.Throw();
+                return this.throw();
                 break;
         }
     }
@@ -122,21 +121,21 @@ class Human extends Player{
 class AI extends Player{
     constructor(gestureOptions){
         super("placeholder", gestureOptions)
-        this.name = this.ChooseName();
+        this.name = this.chooseName();
     }
-    ChooseName(){
+    chooseName(){
         let names = ["Mike Terrill", "Mike Heinisch", "Brett Johnson", "Charles King", "David Lagrange", "Nevin Seibel", "Tony Seichter"]
-        let random = this.GetRandomInteger(0, names.length)
+        let random = this.getRandomInteger(0, names.length)
         return names[random];
     }
-    GetRandomInteger(min, max) {
+    getRandomInteger(min, max) {
         return Math.floor(Math.random() * (max - min) ) + min;//call the cops! I stole this off w3 schools!
     }
-    Throw(){
-        let rand = this.GetRandomInteger(0, this.gestureOptions.length);
-        return this.GetGesture(this.gestureOptions[rand]);
+    throw(){
+        let rand = this.getRandomInteger(0, this.gestureOptions.length);
+        return this.getGesture(this.gestureOptions[rand]);
     }
-    GetGesture(gesture){//probably should be passing a number but w/e.  Dynamic switch would be fancy.
+    getGesture(gesture){//probably should be passing a number but w/e.  Dynamic switch would be fancy.
         switch (gesture) {
             case this.gestureOptions[0]:
                 return new Rock();
@@ -155,26 +154,26 @@ class AI extends Player{
     }
 }
 
-class Comparator{
-    constructor(gesture1, gesture2){
-        this.gesture1 = gesture1;
-        this.gesture2 = gesture2;
-    }
+class Comparator{    
 
-    Compare(){
-        for (let index = 0; index < 2; index++) {
-            const element = this.gesture1.gestureBeats[index][0];
-            if (element === this.gesture2.gestureName) {
-                return [1,this.gesture1.gestureName + " " + this.gesture1.gestureBeats[index][1] + " " + element]; 
+    static compare(gesture1, gesture2){
+        let compareLength = 2;
+        let win1 = 1;
+        let win2 = 2;
+        let noWin = 0;
+        for (let index = 0; index < compareLength; index++) {
+            const throwName = gesture1.gestureBeats[index][0];
+            if (throwName === gesture2.gestureName) {
+                return [win1, gesture1.gestureName + " " + gesture1.gestureBeats[index][1] + " " + throwName]; 
             }
         }
-        for (let index = 0; index < 2; index++) {
-            const element = this.gesture2.gestureBeats[index][0];
-            if (element === this.gesture1.gestureName) {
-                return [2,this.gesture2.gestureName + " " + this.gesture2.gestureBeats[index][1] + " " + element]; 
+        for (let index = 0; index < compareLength; index++) {
+            const throwName = gesture2.gestureBeats[index][0];
+            if (throwName === gesture1.gestureName) {
+                return [win2, gesture2.gestureName + " " + gesture2.gestureBeats[index][1] + " " + throwName]; 
             }
         }      
-        return [0]     
+        return [noWin]     
     }       
 }
 
@@ -209,20 +208,24 @@ class Spock extends Gesture{
         super("spock", [["rock", "crushes"],["scissors", "smashes"]])
     }
 }
+class Helper{
 
-function PromptFor(output) {
+    static promptFor(output) {
     console.log(output)
     return prompt(output);
-}
-function PrintOut(string){
+        }
+    static printOut(string){
     console.log(string);
     alert(string)
-}
-function Start() {
-    
-    var game = new Game();
-    game.SetupGame();
-    game.RunGame();
+    }
 }
 
-Start();
+class Program{
+    static start() {    
+        var game = new Game();
+        game.setupGame();
+        game.runGame();
+        }
+}
+
+Program.start();
