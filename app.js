@@ -9,14 +9,14 @@ class Game{
     }
 
     SetupGame(){
-        let players = PromtFor("How many players?")
+        let players = PromptFor("How many players?")
         if (players === "1") {
-            this.player1 = new Human();
-            this.player2 = new AI();
+            this.player1 = new Human(this.gestureOptions);
+            this.player2 = new AI(this.gestureOptions);
         }
         else if (players === "2") {
-            this.player1 = new Human();
-            this.player2 = new Human();
+            this.player1 = new Human(this.gestureOptions);
+            this.player2 = new Human(this.gestureOptions);
         } else {
             this.setupgame()
         }
@@ -34,24 +34,30 @@ class Game{
             let comparator = new Comparator(p1throw, p2throw);
             let winner = comparator.Compare();
             if (winner[0] === 1) {
-                console.log(winner[0]);
+                //console.log(winner[0]);
                 this.player1.score++;
                 console.log(this.player1.name + " won the round");
+                PrintOut(this.player1.name + " won the round");
             } else if (winner[0]===2) {
-                console.log(winner[1]);
+                //console.log(winner[0]);
                 this.player2.score++;
                 console.log(this.player2.name + " won the round");
+                PrintOut(this.player2.name + " won the round");
+
             } else {
                 console.log("TIE!");
+                PrintOut("Tie")
             }             
-        } while (this.player1.score < this.maxScore || this.player2.score < this.maxScore);
+        } while (this.player1.score < this.maxScore && this.player2.score < this.maxScore);
         this.DeclareWinner();
     }
     DeclareWinner(){
         if (this.player1.score > this.player2.score) {
             console.log(this.player1.name + " wins the competition!");
+            PrintOut(this.player1.name + " wins the competition!");
         } else if (this.player2.score > this.player1.score) {
             console.log(this.player2.name + " wins the competition!");
+            PrintOut(this.player2.name + " wins the competition!");
         } else {
             console.log("its... a tie somehow.  contact the developer of this application.")
         } 
@@ -68,6 +74,7 @@ class Game{
         }
         return retValue;
     }
+    
 }
 
 class Player{
@@ -84,15 +91,15 @@ class Player{
 
 class Human extends Player{
     constructor(gestureOptions){
-        super(PromtFor("enter player name"), gestureOptions)
+        super(PromptFor("enter player name"), gestureOptions)
     }
     Throw(){
         let message = "";
         for (let index = 1; index < this.gestureOptions.length+1; index++) {
-            const element = this.gestureOptions[index];
-            message += i+". "+element + "\n"
+            const element = this.gestureOptions[index-1];
+            message += index+". "+element + "\n"
         }        
-        let choice = PromtFor(this.name + " choose a gesture\n" + message)
+        let choice = PromptFor(this.name + " choose a gesture\n" + message)
         
         switch (choice) {//ideally a dynamic switch could handle new gesture options but I dont know how to dynamic switch.
             case "1":
@@ -114,18 +121,20 @@ class Human extends Player{
 
 class AI extends Player{
     constructor(gestureOptions){
-        super(this.ChooseName(), gestureOptions)
+        super("placeholder", gestureOptions)
+        this.name = this.ChooseName();
     }
     ChooseName(){
         let names = ["Mike Terrill", "Mike Heinisch", "Brett Johnson", "Charles King", "David Lagrange", "Nevin Seibel", "Tony Seichter"]
         let random = this.GetRandomInteger(0, names.length)
+        return names[random];
     }
     GetRandomInteger(min, max) {
         return Math.floor(Math.random() * (max - min) ) + min;//call the cops! I stole this off w3 schools!
     }
-    Throw(throws){
-        let rand = this.GetRandomInteger(0, throws.length);
-        return this.GetGesture(throws[rand]);
+    Throw(){
+        let rand = this.GetRandomInteger(0, this.gestureOptions.length);
+        return this.GetGesture(this.gestureOptions[rand]);
     }
     GetGesture(gesture){//probably should be passing a number but w/e.  Dynamic switch would be fancy.
         switch (gesture) {
@@ -162,9 +171,10 @@ class Comparator{
         for (let index = 0; index < 2; index++) {
             const element = this.gesture2.gestureBeats[index][0];
             if (element === this.gesture1.gestureName) {
-                return [2,this.gesture2.gestureName + " " + this.gestur2.gestureBeats[index][1] + " " + element]; 
+                return [2,this.gesture2.gestureName + " " + this.gesture2.gestureBeats[index][1] + " " + element]; 
             }
-        }           
+        }      
+        return [0]     
     }       
 }
 
@@ -200,7 +210,7 @@ class Spock extends Gesture{
     }
 }
 
-function PromtFor(output) {
+function PromptFor(output) {
     console.log(output)
     return prompt(output);
 }
@@ -208,7 +218,11 @@ function PrintOut(string){
     console.log(string);
     alert(string)
 }
+function Start() {
+    
+    var game = new Game();
+    game.SetupGame();
+    game.RunGame();
+}
 
-var game = new Game();
-game.setupgame();
-game.RunGame();
+Start();
