@@ -162,15 +162,15 @@ class Comparator{
         let win2 = 2;
         let noWin = 0;
         for (let index = 0; index < compareLength; index++) {
-            const throwName = gesture1.gestureBeats[index][0];
-            if (throwName === gesture2.gestureName) {
-                return [win1, gesture1.gestureName + " " + gesture1.gestureBeats[index][1] + " " + throwName]; 
+            let opponentThrowName = gesture1.gestureBeats[index][0];
+            if (opponentThrowName === gesture2.gestureName) {
+                return [win1, gesture1.gestureName + " " + gesture1.gestureBeats[index][1] + " " + opponentThrowName]; 
             }
         }
         for (let index = 0; index < compareLength; index++) {
-            const throwName = gesture2.gestureBeats[index][0];
-            if (throwName === gesture1.gestureName) {
-                return [win2, gesture2.gestureName + " " + gesture2.gestureBeats[index][1] + " " + throwName]; 
+            let opponentThrowName = gesture2.gestureBeats[index][0];
+            if (opponentThrowName === gesture1.gestureName) {
+                return [win2, gesture2.gestureName + " " + gesture2.gestureBeats[index][1] + " " + opponentThrowName]; 
             }
         }      
         return [noWin]     
