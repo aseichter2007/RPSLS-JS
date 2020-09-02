@@ -5,7 +5,7 @@ class Game{
         this.player1;
         this.player2;
         this.maxScore;
-        this.gestureOptions = ["rock", "paper", "scissors", "lizard", "spock"]
+        this.gestureOptions = ["rock", "paper", "scissors", "lizard", "spock"]//this could probably be built from actul gesture objects to be suer fancy.
     }
 
     SetupGame(){
@@ -20,15 +20,114 @@ class Game{
         } else {
             this.setupgame()
         }
+        let topscore = PromptFor("How many points to win?")
+        let parsed = this.TryParseInt(topscore, 0) 
+        if (parsed !== 0) {
+            this.maxScore = parsed;
+        }
     }
 
     RunGame(){
         do {
-            
-        } while (true);
+            let p1throw =  this.player1.Throw();
+            let p2throw = this. player2.Throw()
+            let comparator = new Comparator(p1throw, p2throw);
+            let winner = comparator.Compare();
+            if (winner[0] === 1) {
+                console.log(winner[0]);
+                this.player1.score++;
+                console.log(this.player1.name + " won the round");
+            } else if (winner[0]===2) {
+                console.log(winner[1]);
+                this.player2.score++;
+                console.log(this.player2.name + " won the round");
+            } else {
+                console.log("TIE!");
+            }             
+        } while (this.player1.score < this.maxScore || this.player2.score < this.maxScore);
+        this.DeclareWinner();
+    }
+    DeclareWinner(){
+        if (this.player1.score > this.player2.score) {
+            console.log(this.player1.name + " wins the competition!");
+        } else if (this.player2.score > this.player1.score) {
+            console.log(this.player2.name + " wins the competition!");
+        } else {
+            console.log("its... a tie somehow.  contact the developer of this application.")
+        } 
     }
 
-    GetGesture(gesture){
+    TryParseInt(str,defaultValue) {//I stole this code block from https://pietschsoft.com/post/2008/01/14/javascript-inttryparse-equivalent
+        var retValue = defaultValue;
+        if(str !== null) {
+            if(str.length > 0) {
+                if (!isNaN(str)) {
+                    retValue = parseInt(str);
+                }
+            }
+        }
+        return retValue;
+    }
+}
+
+class Player{
+    constructor(name, gestureOptions){
+        this.name = name;
+        this.score = 0;
+        this.gestureOptions = gestureOptions;
+    }
+    Throw(){
+        console.log("Error: this method should be overridden")
+    }
+
+}
+
+class Human extends Player{
+    constructor(gestureOptions){
+        super(PromtFor("enter player name"), gestureOptions)
+    }
+    Throw(){
+        let message = "";
+        for (let index = 1; index < this.gestureOptions.length+1; index++) {
+            const element = this.gestureOptions[index];
+            message += i+". "+element + "\n"
+        }        
+        let choice = PromtFor(this.name + " choose a gesture\n" + message)
+        
+        switch (choice) {//ideally a dynamic switch could handle new gesture options but I dont know how to dynamic switch.
+            case "1":
+                return new Rock();
+            case "2":
+                return new Paper();
+            case "3":
+                return new Scissors();
+            case "4":
+                return new Lizard();
+            case "5":
+                return new Spock();        
+            default:
+                return this.Throw();
+                break;
+        }
+    }
+}
+
+class AI extends Player{
+    constructor(gestureOptions){
+        super(this.ChooseName(), gestureOptions)
+    }
+    ChooseName(){
+        let names = ["Mike Terrill", "Mike Heinisch", "Brett Johnson", "Charles King", "David Lagrange", "Nevin Seibel", "Tony Seichter"]
+        let random = this.GetRandomInteger(0, names.length)
+    }
+    GetRandomInteger(min, max) {
+        return Math.floor(Math.random() * (max - min) ) + min;//call the cops! I stole this off w3 schools!
+    }
+    Throw(throws){
+        let rand = this.GetRandomInteger(0, throws.length);
+        return this.GetGesture(throws[rand]);
+    }
+    GetGesture(gesture){//probably should be passing a number but w/e.  Dynamic switch would be fancy.
         switch (gesture) {
             case this.gestureOptions[0]:
                 return new Rock();
@@ -41,57 +140,10 @@ class Game{
             case this.gestureOptions[4]:
                 return new Spock();
             default:
+                return this.throws();
                 break;
         }
     }
-}
-
-function PromtFor(output) {
-    console.log(output)
-    return prompt(output);
-}
-
-class Player{
-    constructor(name){
-        this.name = name;
-        this.score = 0;
-    }
-    Throw(){
-        console.log("Error: this method should be overridden")
-    }
-
-}
-
-class Human extends Player{
-    constructor(){
-        super(PromtFor("enter player name"))
-    }
-    Throw(possiblethrows){
-        let message = "";
-        for (let index = 0; index < possiblethrows.length; index++) {
-            const element = possiblethrows[index];
-            message += i+". "+element + "\n"
-        }
-        
-        let choice = PromtFor("Choose a gesture\n"+ message)
-    }
-}
-
-class AI extends Player{
-    constructor(){
-        super()
-    }
-    ChooseName(){
-        let names = ["Mike Terrill", "Mike Heinisch", "Brett Johnson", "Charles King", "David Lagrange", "Nevin Seibel", "Tony Seichter"]
-        let random = this.GetRandomInteger(0, names.length)
-    }
-    GetRandomInteger(min, max) {
-        return Math.floor(Math.random() * (max - min) ) + min;//call the cops! I stole this off w3 schools!
-    }
-    Throw(){
-
-    }
-
 }
 
 class Comparator{
@@ -146,6 +198,15 @@ class Spock extends Gesture{
     constructor(){
         super("spock", [["rock", "crushes"],["scissors", "smashes"]])
     }
+}
+
+function PromtFor(output) {
+    console.log(output)
+    return prompt(output);
+}
+function PrintOut(string){
+    console.log(string);
+    alert(string)
 }
 
 var game = new Game();
